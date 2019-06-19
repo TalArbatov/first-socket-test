@@ -14,5 +14,8 @@ module.exports = {
             test: /\.js$/,
             exclude: /node_modules/
         }]
+    },
+    node: {
+        fs:'empty'
     }
 }

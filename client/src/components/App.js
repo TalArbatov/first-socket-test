@@ -2,9 +2,9 @@ import React from 'react';
 import io from 'socket.io-client';
 import constants from '../../../constants'
 import Login from './Login'
+import config from '../../../config'
 
-
-const socketUrl = "http://localhost:4000";
+const socketUrl = config.socketURI;
 
 class App extends React.Component {
     state = {
