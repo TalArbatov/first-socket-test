@@ -3,6 +3,7 @@ const config = require('../config');
 const bodyParser = require('body-parser');
 const socketIO = require('socket.io');
 const mongoose =require('mongoose');
+const constants = require('../constants');
 
 //config mongo
 mongoose.connect(config.mongoURI, {useNewUrlParser: true}, (err) => {
@@ -13,8 +14,10 @@ require('./models/ChatSchema');
 //config socketIO
 const client = socketIO.listen(4000).sockets;
 const Chat = mongoose.model('Chat');
-client.on('connection', (socket) => {
-
+client.on('connection', async (socket) => {
+    const Chats = await Chat.find({});
+    //const messages = Chats.map(chat => chat.content)
+    //client.emit(constants.GET_INITIAL_STATE, messages)
     const sendStatus = (status) => {
         socket.emit('status', status)
     }
@@ -47,17 +50,18 @@ client.on('connection', (socket) => {
     socket.on('test', (message) => {
         console.log(message)
     })
-    socket.on('onMessage', (message) => {
-        console.log('got to server: ' + message)
+    socket.on(constants.ON_MESSAGE_SENT, (userState) => {
+        console.log('got to server: ');
+        console.log*userState
         const newChat = new Chat({
-            username: 'Tal',
-            content: message,
+            username: userState.nickname,
+            content: userState.message,
             date: Date.now()
         })
         newChat.save((err, doc) => {
             if(!err) {
                 //io.soc('onMessageSuccess', message)
-                client.emit('onMessageSuccess', message)
+                client.emit(constants.ON_MESSAGE_RECIEVED, userState)
             }
         })
     })
