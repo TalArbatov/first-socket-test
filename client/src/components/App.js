@@ -24,6 +24,7 @@ class App extends React.Component {
 
     initSocket = () => {
         const socket = io(socketUrl);
+        
         socket.on('connect', () => {
             console.log('connected');
             socket.emit('connectionStart', 'test from client')

@@ -4,15 +4,22 @@ const bodyParser = require('body-parser');
 const socketIO = require('socket.io');
 const mongoose =require('mongoose');
 const constants = require('../constants');
-
+const http = require('http')
 //config mongo
 mongoose.connect(config.mongoURI, {useNewUrlParser: true}, (err) => {
     if(err) console.log(`Connection error to ${config.mongoURI}, Error: ${err}`);
 })
 require('./models/ChatSchema');
 
+
+const app = express();
+const server = http.createServer(app);
+
 //config socketIO
-const client = socketIO.listen(4000).sockets;
+const client = socketIO(server).sockets;
+
+//const client = socketIO.listen(4000).sockets;
+
 const Chat = mongoose.model('Chat');
 client.on('connection', async (socket) => {
     const Chats = await Chat.find({});
@@ -70,11 +77,10 @@ client.on('connection', async (socket) => {
 
 
 //config middlewares
-const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}))
 app.use('/', express.static(require('path').join(__dirname, '..', 'client', 'public')));
 
-app.listen(config.port, () => {
+server.listen(config.port, () => {
     console.log(`Listening on port ${config.port}`)
 })
